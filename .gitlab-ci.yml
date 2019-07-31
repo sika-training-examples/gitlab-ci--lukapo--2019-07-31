@@ -10,7 +10,7 @@ image: ondrejsika/ci
 variables:
   GIT_CLEAN_FLAGS: -ffdx -e node_modules/ -e .next/
 
-  IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID
   IMAGE_TESTS: $CI_REGISTRY_IMAGE/tests:$CI_COMMIT_REF_SLUG
 
   KUBECONFIG: .kubeconfig
@@ -55,7 +55,7 @@ tests:
     - echo $KUBECONFIGFILE | base64 --decode > .kubeconfig
     - helm init --client-only
     - helm repo add ondrejsika https://helm.oxs.cz
-    - helm upgrade --install $DEPLOY_NAME ondrejsika/simple-image --set image.repository=$CI_REGISTRY_IMAGE --set image.tag=$CI_COMMIT_REF_SLUG --set ingress.hosts={$DEPLOY_URL} --set replicaCount=1
+    - helm upgrade --install $DEPLOY_NAME ondrejsika/simple-image --set image.repository=$CI_REGISTRY_IMAGE --set image.tag=$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID --set ingress.hosts={$DEPLOY_URL} --set replicaCount=1
 
 .stop template: &stop_template
   script:
