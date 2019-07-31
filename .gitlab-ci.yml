@@ -1,12 +1,15 @@
 stages:
   - lint
   - build
-  - docker
   - dev deploy
   - prod deploy
 
+image: ondrejsika/ci
+
 variables:
   GIT_CLEAN_FLAGS: -ffdx -e node_modules/ -e .next/
+
+  IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
 
 lint:
   image: node
@@ -16,11 +19,8 @@ lint:
     - yarn run prettier-check
 
 build:
-  image: node
   stage: build
   script:
-    - yarn
-    - yarn run static
-  artifacts:
-    paths:
-      - out
+    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    - docker build $IMAGE .
+    - docker push $IMAGE
