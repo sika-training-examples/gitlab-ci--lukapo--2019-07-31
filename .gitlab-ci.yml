@@ -13,6 +13,8 @@ variables:
   IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   IMAGE_TESTS: $CI_REGISTRY_IMAGE/tests:$CI_COMMIT_REF_SLUG
 
+  KUBECONFIG: .kubeconfig
+
 .lint:
   image: node
   stage: lint
@@ -51,8 +53,7 @@ tests:
 dev deploy:
   stage: dev deploy
   script:
-      - mkdir -p .kube
-      - echo $KUBECONFIGFILE | base64 --decode > .kube/config
+      - echo $KUBECONFIGFILE | base64 --decode > .kubeconfig
       - helm init --client-only
       - helm repo add ondrejsika https://helm.oxs.cz
       - helm install ondrejsika/simple-image --name $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG --set ingress.hosts={$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG-188-166-195-72.nip.io} --set replicaCount=1
