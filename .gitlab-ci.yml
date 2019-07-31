@@ -110,7 +110,7 @@ prod deploy:
     DEPLOY_NAME: $CI_PROJECT_PATH_SLUG
     DEPLOY_URL: prod-$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG-188-166-195-72.nip.io
   environment:
-    name: $CI_COMMIT_REF_SLUG
+    name: $CI_PROJECT_PATH_SLUG
     url: https://prod-$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG-188-166-195-72.nip.io
     on_stop: stop prod
   only:
@@ -123,5 +123,5 @@ stop prod:
   variables:
     DEPLOY_NAME: $CI_PROJECT_PATH_SLUG
   environment:
-    name: $CI_COMMIT_REF_SLUG
+    name: $CI_PROJECT_PATH_SLUG
     action: stop
