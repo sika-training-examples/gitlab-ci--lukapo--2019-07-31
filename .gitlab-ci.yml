@@ -1,0 +1,15 @@
+stages:
+  - lint
+  - build
+  - docker
+  - dev deploy
+  - prod deploy
+
+variables:
+  GIT_CLEAN_FLAGS: -ffdx -e node_modules/ -e .next/
+
+lint:
+  stage: lint
+  script:
+    - yarn
+    - yarn run prettier-check
