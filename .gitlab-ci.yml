@@ -39,6 +39,14 @@ tests:
     - docker-compose run tests
   after_script:
     - docker-compose down
+  only:
+    changes:
+      - yarn.lock
+      - package.json
+      - out
+      - tests
+      - Dockerfile
+      - compose
 
 dev deploy:
   stage: dev deploy
