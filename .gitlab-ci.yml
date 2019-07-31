@@ -39,3 +39,12 @@ tests:
     - docker-compose run tests
   after_script:
     - docker-compose down
+
+dev deploy:
+  stage: dev deploy
+  script:
+      - mkdir -p .kube
+      - echo $KUBECONFIGFILE | base64 --decode > .kube/config
+      - helm init --client-only
+      - helm repo add https://helm.oxs.cz
+      - helm install ondrejsika/simple-image --name $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG --set ingress.hosts={$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG-188-166-195-72.nip.io} --set replicaCount=1
