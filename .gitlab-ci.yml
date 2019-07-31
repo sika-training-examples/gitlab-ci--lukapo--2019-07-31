@@ -9,6 +9,7 @@ variables:
   GIT_CLEAN_FLAGS: -ffdx -e node_modules/ -e .next/
 
 lint:
+  image: node
   stage: lint
   script:
     - yarn
