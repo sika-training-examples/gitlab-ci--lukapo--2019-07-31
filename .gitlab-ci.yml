@@ -14,3 +14,13 @@ lint:
   script:
     - yarn
     - yarn run prettier-check
+
+build:
+  image: node
+  stage: build
+  script:
+    - yarn
+    - yarn run static
+  artifacts:
+    paths:
+      - out
