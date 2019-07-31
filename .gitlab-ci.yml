@@ -15,14 +15,14 @@ variables:
 
   KUBECONFIG: .kubeconfig
 
-.lint:
+lint:
   image: node
   stage: lint
   script:
     - yarn
     - yarn run prettier-check
 
-.build:
+build:
   stage: build
   variables:
     COMPOSE_FILE: compose/main.yaml:compose/tests.yaml
