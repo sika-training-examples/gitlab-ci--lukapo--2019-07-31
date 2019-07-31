@@ -13,14 +13,14 @@ variables:
   IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   IMAGE_TESTS: $CI_REGISTRY_IMAGE/tests:$CI_COMMIT_REF_SLUG
 
-lint:
+.lint:
   image: node
   stage: lint
   script:
     - yarn
     - yarn run prettier-check
 
-build:
+.build:
   stage: build
   variables:
     COMPOSE_FILE: compose/main.yaml:compose/tests.yaml
@@ -54,5 +54,5 @@ dev deploy:
       - mkdir -p .kube
       - echo $KUBECONFIGFILE | base64 --decode > .kube/config
       - helm init --client-only
-      - helm repo add https://helm.oxs.cz
+      - helm repo add ondrejsika https://helm.oxs.cz
       - helm install ondrejsika/simple-image --name $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG --set ingress.hosts={$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG-188-166-195-72.nip.io} --set replicaCount=1
