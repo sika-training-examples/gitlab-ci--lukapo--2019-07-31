@@ -50,24 +50,78 @@ tests:
       - Dockerfile
       - compose
 
-dev deploy:
-  stage: dev deploy
+.deploy template: &deploy_template
   script:
-      - echo $KUBECONFIGFILE | base64 --decode > .kubeconfig
-      - helm init --client-only
-      - helm repo add ondrejsika https://helm.oxs.cz
-      - helm upgrade --install $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG ondrejsika/simple-image --set image.repository=$CI_REGISTRY_IMAGE --set image.tag=$CI_COMMIT_REF_SLUG --set ingress.hosts={$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG-188-166-195-72.nip.io} --set replicaCount=1
+    - echo $KUBECONFIGFILE | base64 --decode > .kubeconfig
+    - helm init --client-only
+    - helm repo add ondrejsika https://helm.oxs.cz
+    - helm upgrade --install $DEPLOY_NAME ondrejsika/simple-image --set image.repository=$CI_REGISTRY_IMAGE --set image.tag=$CI_COMMIT_REF_SLUG --set ingress.hosts={$DEPLOY_URL} --set replicaCount=1
+
+.stop template: &stop_template
+  script:
+    - helm init -c
+    - helm delete --purge $DEPLOY_NAME
+
+dev deploy:
+  <<: *deploy_template
+  stage: dev deploy
+  variables:
+    DEPLOY_NAME: $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG
+    DEPLOY_URL: $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG-188-166-195-72.nip.io
   environment:
     name: $CI_COMMIT_REF_SLUG
     url: https://$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG-188-166-195-72.nip.io
     on_stop: stop dev
 
 stop dev:
+  <<: *stop_template
   stage: dev deploy
   when: manual
-  script:
-    - helm init -c
-    - helm delete --purge $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    action: stop
+
+dev deploy:
+  <<: *deploy_template
+  stage: dev deploy
+  variables:
+    DEPLOY_NAME: $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG
+    DEPLOY_URL: $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG-188-166-195-72.nip.io
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    url: https://$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG-188-166-195-72.nip.io
+    on_stop: stop dev
+
+stop dev:
+  <<: *stop_template
+  stage: dev deploy
+  when: manual
+  variables:
+    DEPLOY_NAME: $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    action: stop
+
+prod deploy:
+  <<: *deploy_template
+  stage: prod deploy
+  when: manual
+  variables:
+    DEPLOY_NAME: $CI_PROJECT_PATH_SLUG
+    DEPLOY_URL: prod-$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG-188-166-195-72.nip.io
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    url: https://prod-$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG-188-166-195-72.nip.io
+    on_stop: stop prod
+  only:
+    - master
+
+stop prod:
+  <<: *stop_template
+  stage: prod deploy
+  when: manual
+  variables:
+    DEPLOY_NAME: $CI_PROJECT_PATH_SLUG
   environment:
     name: $CI_COMMIT_REF_SLUG
     action: stop
